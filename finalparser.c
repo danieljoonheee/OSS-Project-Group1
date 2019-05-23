@@ -77,7 +77,11 @@ void parseJSON(char *doc, int size, JSON *json)
     {
         switch(doc[pos])
         {
-
+            case ',':
+            {
+                temp_pos-=2;
+            }
+            break;
             case '{':
             {
                 count++;
@@ -96,6 +100,17 @@ void parseJSON(char *doc, int size, JSON *json)
                     }
                                     
                 }
+                //herere
+                int k=0;
+                while(check[k]!='}'){
+                    if(check[k]=='"'&check[k+1]==':')
+                        tsize++;
+                    k++;
+                }
+
+                json->tokens[tokenIndex].tokensize=tsize;
+                //herere
+
                 json->tokens[tokenIndex].start = temp_pos;
                 json->tokens[tokenIndex].end = json->tokens[tokenIndex].start + stringLength;
                 json->tokens[tokenIndex].string = malloc(stringLength+1);
@@ -103,7 +118,6 @@ void parseJSON(char *doc, int size, JSON *json)
                 memcpy(json->tokens[tokenIndex].string, begin, stringLength);
                 json->tokens[tokenIndex].type = TOKEN_OBJECT;
                 tokenIndex++;
-                temp_pos = temp_pos + stringLength+1;
             }
             break;
 
@@ -125,6 +139,16 @@ void parseJSON(char *doc, int size, JSON *json)
                     }
                    
                 }
+
+                int k=0;
+                while(check[k]!='}'){
+                    if(check[k]=='"'&check[k+1]==':')
+                        tsize++;
+                    k++;
+                }
+
+                json->tokens[tokenIndex].tokensize=tsize;
+
                 json->tokens[tokenIndex].start = temp_pos;
                 json->tokens[tokenIndex].end = json->tokens[tokenIndex].start + stringLength;
                 json->tokens[tokenIndex].string = malloc(stringLength+1);
@@ -132,10 +156,8 @@ void parseJSON(char *doc, int size, JSON *json)
                 memcpy(json->tokens[tokenIndex].string, begin, stringLength);
                 json->tokens[tokenIndex].type = TOKEN_ARRAY;
                 tokenIndex++;
-                temp_pos = temp_pos + stringLength+1;
             }
             break;
-
 
             case '"':
             {
@@ -227,6 +249,7 @@ void parseJSON(char *doc, int size, JSON *json)
             break;
         }
         pos++;
+        temp_pos++;
     }
 }
 
