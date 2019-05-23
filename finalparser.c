@@ -27,7 +27,7 @@ typedef struct _TOKEN {
     };
 } TOKEN;
 
-#define TOKEN_COUNT 26
+#define TOKEN_COUNT 1024
 
 typedef struct _JSON {
     TOKEN tokens[TOKEN_COUNT];
