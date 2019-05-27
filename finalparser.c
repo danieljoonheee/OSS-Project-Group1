@@ -71,7 +71,7 @@ void parseJSON(char *doc, int size, JSON *json)
     if(doc[pos] != '{')
         return;
     pos++;
-    int temp_pos = pos-1;
+    int temp_pos = pos;
 
     while(pos<size)
     {
@@ -79,76 +79,75 @@ void parseJSON(char *doc, int size, JSON *json)
         {
             case ',':
             {
-                temp_pos-=2;
+                temp_pos-=1;
             }
             break;
+	    case '\n':
+	    {
+		temp_pos-=1;
+	    }
+	    break;
             case '{':
             {
-                count++;
+		count++;
+		temp_pos++;		
                 int K = tokenIndex;
                 char *begin = doc + pos;
                 char *end = strchr(begin, '}');
-                int stringLength = end - begin + 1;
+                int stringLength = end - begin+1;
                 char *check = doc + pos + 1;
                 int tsize = 0;
-                for(int k=0; k<=stringLength+1; k++){
-                    int tsize = 0;
-                    if(check[stringLength+1]==':'){
-                        tsize++;
-                        
-                        json->tokens[tokenIndex].tokensize = tsize;
-                    }
-                                    
-                }
+                
                 //herere
                 int k=0;
                 while(check[k]!='}'){
-                    if(check[k]=='"'&check[k+1]==':')
+                    if(check[k]=='"'&&check[k+1]==':')
                         tsize++;
-                    k++;
+		    
+		            if(check[k]=='\n')
+			        temp_pos-=1;
+                        k++;
                 }
 
                 json->tokens[tokenIndex].tokensize=tsize;
                 //herere
-
                 json->tokens[tokenIndex].start = temp_pos;
-                json->tokens[tokenIndex].end = json->tokens[tokenIndex].start + stringLength;
+                json->tokens[tokenIndex].end = json->tokens[tokenIndex].start + stringLength-1;
                 json->tokens[tokenIndex].string = malloc(stringLength+1);
                 memset(json->tokens[tokenIndex].string, 0, stringLength + 1);
                 memcpy(json->tokens[tokenIndex].string, begin, stringLength);
                 json->tokens[tokenIndex].type = TOKEN_OBJECT;
                 tokenIndex++;
+		
             }
             break;
 
             case '[':
             {
                 count++;
+                temp_pos++;
                 int K = tokenIndex;
                 char *begin = doc + pos;
                 char *end = strchr(begin, ']');
-                int stringLength = end - begin + 1;
-                char *check = doc + pos + 1;
+                int stringLength = end - begin+1;
+                char *check = doc + pos;
                 int tsize = 0;
                 for(int k=0; k<=stringLength+1; k++){
-                    int tsize = 0;
-                    if(check[stringLength+1]==':'){
+                    if(check[k]=='"'){
                         tsize++;
-                       
-                        json->tokens[tokenIndex].tokensize = tsize;
                     }
-                   
                 }
+                tsize=tsize/2;
+                json->tokens[tokenIndex].tokensize = tsize;
 
                 int k=0;
-                while(check[k]!='}'){
-                    if(check[k]=='"'&check[k+1]==':')
-                        tsize++;
+		        while(check[k]!=']'){
+
+                    if(check[k]=='\n')
+                        temp_pos-=1;
                     k++;
                 }
-
-                json->tokens[tokenIndex].tokensize=tsize;
-
+                
                 json->tokens[tokenIndex].start = temp_pos;
                 json->tokens[tokenIndex].end = json->tokens[tokenIndex].start + stringLength;
                 json->tokens[tokenIndex].string = malloc(stringLength+1);
@@ -174,7 +173,7 @@ void parseJSON(char *doc, int size, JSON *json)
                 int tsize = 0;
                 for(int k=0; k<=stringLength+1; k++){
                     int tsize = 0;
-                    if(check[stringLength+1]==':'){
+                    if(check[k]==':'){
                         tsize++;
                     
                         json->tokens[tokenIndex].tokensize = tsize;
@@ -186,6 +185,7 @@ void parseJSON(char *doc, int size, JSON *json)
                         
 
                 json->tokens[tokenIndex].type = TOKEN_STRING;
+		
                 json->tokens[tokenIndex].string = malloc(stringLength + 1);
                 json->tokens[tokenIndex].start = temp_pos;
                 json->tokens[tokenIndex].end = json->tokens[tokenIndex].start + stringLength;
@@ -223,7 +223,7 @@ void parseJSON(char *doc, int size, JSON *json)
                 int tsize = 0;
                 for(int k=0; k<=stringLength+1; k++){
                     int tsize = 0;
-                    if(check[stringLength+1]==':'){
+                    if(check[k]==':'){
                         tsize++;
                         json->tokens[tokenIndex].tokensize = tsize;
                     }
